@@ -17,7 +17,7 @@ module Sidekiq
         end
 
         def find_job_by_class_name(job_class_name)
-          Sidekiq::Enqueuer.all_jobs.find do |job_klass|
+          Sidekiq::Enqueuer.jobs.find do |job_klass|
             job_klass.job == job_class_name ||
               job_klass.job.to_s == job_class_name ||
               job_klass.name == job_class_name
@@ -27,4 +27,3 @@ module Sidekiq
     end
   end
 end
-

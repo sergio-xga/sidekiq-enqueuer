@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 require "sidekiq/web"
-require "sidekiq/enqueuer/version"
 require "sidekiq/enqueuer/configuration"
+require "sidekiq/enqueuer/utils"
+require "sidekiq/enqueuer/version"
 require "sidekiq/enqueuer/worker/instance"
 require "sidekiq/enqueuer/worker/param"
 require "sidekiq/enqueuer/worker/trigger"
-require "sidekiq/enqueuer/web_extension/loader"
 require "sidekiq/enqueuer/web_extension/helper"
+require "sidekiq/enqueuer/web_extension/loader"
 require "sidekiq/enqueuer/web_extension/params_parser"
-require "sidekiq/enqueuer/railtie" if defined?(::Rails::Railtie)
 
 module Sidekiq
   module Enqueuer
@@ -24,10 +24,9 @@ module Sidekiq
         yield(configuration)
       end
 
-      def all_jobs
-        included_jobs = defined?(@all_jobs) ? @all_jobs : configuration.all_jobs
-        included_jobs.each_with_object([]) do |job_klass, acc|
-          acc << Worker::Instance.new(job_klass, configuration.enqueue_using_async)
+      def jobs
+        configuration.available_jobs.map do |job|
+          Worker::Instance.new(job, async: configuration.async)
         end
       end
     end
@@ -55,4 +54,3 @@ if defined?(Sidekiq::Web)
     Sidekiq::Web.settings.locales << locales_path
   end
 end
-

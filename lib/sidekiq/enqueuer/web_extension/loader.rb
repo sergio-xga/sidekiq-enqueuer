@@ -9,7 +9,7 @@ module Sidekiq
           app.helpers(WebExtension::Helper)
 
           app.get "/enqueuer" do
-            @jobs = Sidekiq::Enqueuer.all_jobs
+            @jobs = Sidekiq::Enqueuer.jobs
             render(:erb, File.read(File.join(view_path, "index.erb")))
           end
 
@@ -31,7 +31,7 @@ module Sidekiq
             end
             job = find_job_by_class_name(job_class_name)
 
-            if job
+            if job.present?
               requested_params = get_params_by_action("perform", job)
 
               submit_action = if Sidekiq::Enqueuer::SIDEKIQ_GTE_8
@@ -53,11 +53,10 @@ module Sidekiq
               end
             end
 
-            redirect("#{root_path}enqueuer")
+            redirect(File.join(root_path, "enqueuer"))
           end
         end
       end
     end
   end
 end
-
